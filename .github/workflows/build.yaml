@@ -7,7 +7,7 @@ on:
     pull_request:
 
 env:
-  IMAGE_NAME = get_iplayer-webpvr
+  IMAGE_NAME: get_iplayer-webpvr
 
 jobs:
   test:
