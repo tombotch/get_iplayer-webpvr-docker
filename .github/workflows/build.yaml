@@ -17,7 +17,7 @@ jobs:
           docker build -t get_iplayer-webpvr .
       - name: Test image
         run: |
-          docker run --rm --name test -p 1935:1935 get_iplayer-webpvr
+          docker run --rm --name test -p 1935:1935 -d get_iplayer-webpvr
           docker stop test
   push:
     name: Push Docker image
