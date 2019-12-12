@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Build image
         run: |
-          docker build -t docker.pkg.github.com/tombotch/get_iplayer-webpvr .
+          docker build -t get_iplayer-webpvr .
       - name: Log in to registry
         run: |
           docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
@@ -41,5 +41,5 @@ jobs:
           [ "$VERSION" == "master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag image $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
