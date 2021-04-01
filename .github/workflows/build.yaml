@@ -4,20 +4,23 @@ on:
       - master
     tags:
       - v*
-    pull_request:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
     name: Test Docker image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout branch
+        uses: actions/checkout@master
       - name: Build image
         run: |
-          docker build -t get_iplayer-webpvr .
+          docker build -t app .
       - name: Test image
         run: |
-          docker run --rm --name test -p 1935:1935 -d get_iplayer-webpvr
+          docker run --rm --name test -p 1935:1935 -d app
           docker stop test
   push:
     name: Push Docker image
@@ -25,21 +28,19 @@ jobs:
     needs: test
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@master
-      - name: Build image
-        run: |
-          docker build -t get_iplayer-webpvr .
+      - name: Checkout branches
+        uses: actions/checkout@master
       - name: Log in to registry
         run: |
           docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
       - name: Build & push image to registry
         run: |
           IMAGE_NAME=get_iplayer-webpvr
-          IMAGE_ID=ghcr.io/${{ github.actor }}/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker build -t $IMAGE_ID:$VERSION .
           docker push $IMAGE_ID:$VERSION
