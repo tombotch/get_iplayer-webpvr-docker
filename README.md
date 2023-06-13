@@ -6,4 +6,4 @@ Docker image for the get_iplayer Web PVR
 docker build .
 ```
 
-This will build a Docker image that exposes the Web PRV on port **1953** and saves content to `/var/lib/get_iplayer`
+This will build a Docker image that exposes the Web PVR on port **1953** and saves content to `/var/lib/get_iplayer`
