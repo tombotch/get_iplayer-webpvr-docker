@@ -82,4 +82,4 @@ jobs:
           cosign sign --yes "${TAGS}@${DIGEST}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          TAGS: ${{ steps.metadata.outputs.tags }}
+          TAGS: ${{ steps.get-metadata.outputs.tags }}
