@@ -79,7 +79,11 @@ jobs:
           tags: ${{ steps.get-metadata.outputs.tags }} 
       - name: Sign image
         run: |
-          cosign sign --yes "${TAGS}@${DIGEST}"
+          IFS=$'\n'
+          for TAG in $TAGS
+          do
+            cosign sign --yes "${TAG}@${DIGEST}"
+          done
         env:
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
           TAGS: ${{ steps.get-metadata.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
