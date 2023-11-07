@@ -30,38 +30,50 @@ jobs:
     needs: test
     if: github.event_name == 'push'
     steps:
-      - name: Checkout branches
-        uses: actions/checkout@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.2
-      - name: Log in to registry
+      - name: Log in to GitHub registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to conta.in.rs registry
+        uses: docker/login-action@v3
+        with:
+          registry: conta.in.rs
+          username: robot$github
+          password: ${{ secrets.HARBOR_PASSWORD}}
+      - name: Get tags
+        uses: docker/metadata-action@v5
+        id: get-metadata
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/get_iplayer-webpvr
+            conta.in.rs/get-iplayer/get_iplayer-webpvr
+          tags: |
+            type=semver,pattern={{ version }}
+            type=raw,value=latest,enable={{ is_default_branch }}
+      - name: Get get_iplayer version
+        id: get-version
         run: |
-          docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          docker login -u 'robot$github' -p ${{ secrets.HARBOR_PASSWORD }} conta.in.rs
-      - name: Build & push image to registry
-        id: build-and-push
-        run: |
-          IMAGE_NAME=get_iplayer-webpvr
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-          ALT_IMAGE_ID=conta.in.rs/get-iplayer/$IMAGE_NAME
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          [ "$VERSION" == "master" ] && VERSION=latest
+          VERSION=${{ steps.get-metadata.outputs.version }}
           IPLAYER_VERSION=v$VERSION
           [ "$VERSION" == "latest" ] && IPLAYER_VERSION=master
-          echo "IMAGE_ID=$IMAGE_ID" >> "$GITHUB_OUTPUT"
-          echo "ALT_IMAGE_ID=$ALT_IMAGE_ID" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          docker build -t $IMAGE_ID:$VERSION -t $ALT_IMAGE_ID:$VERSION --build-arg VERSION=$IPLAYER_VERSION .
-          docker push $IMAGE_ID:$VERSION
-          docker push $ALT_IMAGE_ID:$VERSION
+          echo "version=$IPLAYER_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Build & push image to registry
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          build-args: |
+            VERSION=${{ steps.get-version.outputs.version }}
+          tags: ${{ steps.get-metadata.outputs.tags }} 
       - name: Sign image
         run: |
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY $IMAGE_ID:$VERSION
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY $ALT_IMAGE_ID:$VERSION
+          cosign sign --yes "${TAGS}@${DIGEST}"
         env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          IMAGE_ID: ${{ steps.build-and-push.outputs.IMAGE_ID }}
-          ALT_IMAGE_ID: ${{ steps.build-and-push.outputs.ALT_IMAGE_ID }}
-          VERSION: ${{ steps.build-and-push.outputs.VERSION }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          TAGS: ${{ steps.metadata.outputs.tags }}
