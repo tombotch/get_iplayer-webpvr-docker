@@ -42,7 +42,10 @@ jobs:
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "master" ] && VERSION=latest
+          IPLAYER_VERSION=$VERSION
+          [ "$IPLAYER_VERSION" == "latest" ] && unset IPLAYER_VERSION
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker build -t $IMAGE_ID:$VERSION -t $ALT_IMAGE_ID:$VERSION --build-arg VERSION=${VERSION} .
+          docker build -t $IMAGE_ID:$VERSION -t $ALT_IMAGE_ID:$VERSION --build-arg VERSION=$IPLAYER_VERSION .
           docker push $IMAGE_ID:$VERSION
+          docker push $ALT_IMAGE_ID:$VERSION
