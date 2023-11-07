@@ -33,7 +33,7 @@ jobs:
       - name: Log in to registry
         run: |
           docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          docker login -u robot$github -p ${{ secrets.HARBOR_PASSWORD }} conta.in.rs
+          docker login -u 'robot$github' -p ${{ secrets.HARBOR_PASSWORD }} conta.in.rs
       - name: Build & push image to registry
         run: |
           IMAGE_NAME=get_iplayer-webpvr
