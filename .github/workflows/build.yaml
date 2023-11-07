@@ -60,7 +60,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/get_iplayer-webpvr
             conta.in.rs/get-iplayer/get_iplayer-webpvr
           tags: |
-            type=semver,pattern={{ version }}
+            type=match,pattern=v(.*),group=1
             type=raw,value=latest,enable={{ is_default_branch }}
       - name: Get get_iplayer version
         id: get-version
