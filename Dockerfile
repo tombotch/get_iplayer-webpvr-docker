@@ -1,4 +1,4 @@
-FROM debian
+FROM ubuntu:rolling
 ARG VERSION=v3.34
 EXPOSE 1935
 WORKDIR /tmp
