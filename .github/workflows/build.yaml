@@ -30,11 +30,14 @@ jobs:
     steps:
       - name: Checkout branches
         uses: actions/checkout@master
+      - name: Install Cosignste
+        uses: sigstore/cosign-installer@3.1.1
       - name: Log in to registry
         run: |
           docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker login -u 'robot$github' -p ${{ secrets.HARBOR_PASSWORD }} conta.in.rs
       - name: Build & push image to registry
+        id: build-and-push
         run: |
           IMAGE_NAME=get_iplayer-webpvr
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
@@ -44,8 +47,19 @@ jobs:
           [ "$VERSION" == "master" ] && VERSION=latest
           IPLAYER_VERSION=v$VERSION
           [ "$VERSION" == "latest" ] && IPLAYER_VERSION=master
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
+          echo "IMAGE_ID=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+          echo "ALT_IMAGE_ID=$ALT_IMAGE_ID" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           docker build -t $IMAGE_ID:$VERSION -t $ALT_IMAGE_ID:$VERSION --build-arg VERSION=$IPLAYER_VERSION .
           docker push $IMAGE_ID:$VERSION
           docker push $ALT_IMAGE_ID:$VERSION
+      - name: Sign image
+        run: |
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY $IMAGE_ID:$VERSION
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY $ALT_IMAGE_ID:$VERSION
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          IMAGE_ID: ${{ steps.build-and-push.outputs.IMAGE_ID }}
+          ALT_IMAGE_ID: ${{ steps.build-and-push.outputs.ALT_IMAGE_ID }}
+          VERSION: ${{ steps.build-and-push.outputs.VERSION }}
