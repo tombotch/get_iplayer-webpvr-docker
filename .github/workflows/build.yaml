@@ -63,7 +63,7 @@ jobs:
             conta.in.rs/get-iplayer/get_iplayer-webpvr
           tags: |
             type=match,pattern=v(.*),group=1
-            type=raw,value=latest,enable={{ github.ref == 'refs/heads/master' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
       - name: Get get_iplayer version
         id: get-version
         run: |
