@@ -26,6 +26,7 @@ jobs:
       - name: Test image
         run: |
           docker run --rm --name test -p 1935:1935 -d app:test
+          sleep 30
           curl http://localhost:1935
           docker stop test
   push:
