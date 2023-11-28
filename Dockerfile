@@ -1,8 +1,8 @@
 FROM ubuntu:rolling
 ARG VERSION=v3.34
-LABEL org.opencontainers.image.source=https://github.com/tombotch/get_iplayer-webpvr-docker
-LABEL org.opencontainers.image.description=get_iplayer Web PVR
-LABEL org.opencontainers.image.licenses=GPL-3.0
+LABEL org.opencontainers.image.source="https://github.com/tombotch/get_iplayer-webpvr-docker"
+LABEL org.opencontainers.image.description="get_iplayer Web PVR"
+LABEL org.opencontainers.image.licenses="GPL-3.0"
 EXPOSE 1935
 WORKDIR /tmp
 RUN apt-get update
