@@ -1,6 +1,6 @@
 FROM ubuntu:rolling
 # override with --build-arg <varname>=<value> during docker build
-ARG GET_IPLAYER_VERSION=3.34
+ARG GET_IPLAYER_VERSION=v3.34
 ARG GUI_PORT=1935
 
 LABEL org.opencontainers.image.authors = "tombotch"
@@ -17,8 +17,8 @@ RUN ["apt-get", "upgrade", "-y"]
 RUN ["apt-get", "install", "-y", "libwww-perl", "liblwp-protocol-https-perl", "libmojolicious-perl", "libxml-libxml-perl", "libcgi-pm-perl", "atomicparsley", "ffmpeg", "wget"]
 
 # fetch get_iplayer
-ADD --chmod=755 https://raw.githubusercontent.com/get-iplayer/get_iplayer/v${GET_IPLAYER_VERSION}/get_iplayer /usr/local/bin
-ADD --chmod=755 https://raw.githubusercontent.com/get-iplayer/get_iplayer/v${GET_IPLAYER_VERSION}/get_iplayer.cgi /usr/local/bin
+ADD --chmod=755 https://raw.githubusercontent.com/get-iplayer/get_iplayer/${GET_IPLAYER_VERSION}/get_iplayer /usr/local/bin
+ADD --chmod=755 https://raw.githubusercontent.com/get-iplayer/get_iplayer/${GET_IPLAYER_VERSION}/get_iplayer.cgi /usr/local/bin
 
 # set configuration
 ENV GETIPLAYER_PROFILE=/config

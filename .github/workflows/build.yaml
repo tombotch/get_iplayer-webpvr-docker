@@ -70,7 +70,7 @@ jobs:
         id: get-version
         run: |
           VERSION=${{ steps.get-metadata.outputs.version }}
-          GET_IPLAYER_VERSION=$VERSION
+          GET_IPLAYER_VERSION=v$VERSION
           [ "$VERSION" == "latest" ] && GET_IPLAYER_VERSION=master
           echo "get-iplayer-version=$GET_IPLAYER_VERSION" >> "$GITHUB_OUTPUT"
       - name: Build & push image to registry
