@@ -70,16 +70,16 @@ jobs:
         id: get-version
         run: |
           VERSION=${{ steps.get-metadata.outputs.version }}
-          IPLAYER_VERSION=v$VERSION
-          [ "$VERSION" == "latest" ] && IPLAYER_VERSION=master
-          echo "version=$IPLAYER_VERSION" >> "$GITHUB_OUTPUT"
+          GET_IPLAYER_VERSION=$VERSION
+          [ "$VERSION" == "latest" ] && GET_IPLAYER_VERSION=master
+          echo "get-iplayer-version=$GET_IPLAYER_VERSION" >> "$GITHUB_OUTPUT"
       - name: Build & push image to registry
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
           push: true
           build-args: |
-            VERSION=${{ steps.get-version.outputs.version }}
+            GET_IPLAYER_VERSION=${{ steps.get-version.outputs.get-iplayer-version }}
           tags: ${{ steps.get-metadata.outputs.tags }} 
       - name: Sign image
         run: |
