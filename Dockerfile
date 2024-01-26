@@ -1,6 +1,6 @@
 FROM ubuntu:rolling
 # override with --build-arg <varname>=<value> during docker build
-ARG GET_IPLAYER_VERSION=v3.34
+ARG GET_IPLAYER_VERSION=v3.35
 ARG GUI_PORT=1935
 
 LABEL org.opencontainers.image.authors = "tombotch"
